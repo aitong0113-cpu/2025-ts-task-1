@@ -2,24 +2,33 @@
 // 說明：請為以下變數補上正確型別（數字、字串、布林、字串陣列、帶型別的物件）。
 // 目標：能直接通過型別檢查與基本值檢查。
 
-export const plantId /* TODO: 型別 */ = 101;
-export const plantName /* TODO: 型別 */ = "琴葉榕（Fiddle Leaf Fig）";
-export const isAvailable /* TODO: 型別 */ = true;
-export const tags /* TODO: 型別 */ = ["大型植栽", "室內明亮散射光"];
-export const plant /* TODO: 物件型別 */ = { id: 101, name: "琴葉榕", price: 2500 };
-export const cart /* TODO: 陣列包物件的型別定義 > */ = [
+export const plantId /* TODO: 型別 */ :number = 101;
+export const plantName /* TODO: 型別 */ :string = "琴葉榕（Fiddle Leaf Fig）";
+export const isAvailable /* TODO: 型別 */ :boolean = true;
+export const tags /* TODO: 型別(字串陣列) */ :string[] = ["大型植栽", "室內明亮散射光"];
+export const plant /* TODO: 物件型別 */ :{ id:number; name:string; price:number }= { id: 101, name: "琴葉榕", price: 2500 };
+export const cart /* TODO: 陣列包物件的型別定義 >cart → 陣列，每個元素是物件 */ :{ sku:string;name:string;qty:number;price:number;potColor?:string; }[ ]= [
   { sku: "PLANT-1001", name: "虎尾蘭", qty: 2, price: 480 },
   { sku: "PLANT-2001", name: "龜背芋", qty: 1, price: 1200, potColor: "白" },
-];
+];/*→ potColor 並不是每個物件都有，所以用 ?: 可選欄位。*/
+
+
 
 // --- 題目二：Enum（定義 & 反向映射） ---
 // 說明：請定義 PlantCategory Enum，並示範反向映射。
-// 目標：理解 Enum 定義與反向映射的寫法。
+// 目標：理解 Enum 定義與反向映射的寫法。 Enum 是「列舉型別」，用來建立一組固定不會變的分類名稱，只要打錯字或非定義分類的就會報錯
 
-export enum PlantCategory {
-  
+export enum PlantCategory { //定義一個叫做 PlantCategory 植物分類 的 enum
+  LargPlant, //Enum 會自動從 0 開始編號 >>0
+  MediumPlant, //1
+  SmallPlant, //2
 }
-export const catKeyName: string = PlantCategory[/* TODO: 取得 LargePlant 的數值 */ 0];
+//反向映射就是：用 Enum 的數字，反查回 key 的名字。(Enum 在 TypeScript 裡同時支援「正向映射」跟「反向映射」。但只有 數字 Enum 才有「反向映射」)
+export const catKeyName: string = PlantCategory[/* TODO: 取得 LargePlant 的數值 */ PlantCategory.LargePlant ];
+
+
+
+
 
 
 // --- 題目三：type（& 組合） ---
