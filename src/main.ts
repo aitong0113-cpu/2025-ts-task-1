@@ -1,4 +1,4 @@
-// --- 題目一：變數宣告型別定義 ---
+// --------------------------- 題目一：變數宣告型別定義 ------------------------------
 // 說明：請為以下變數補上正確型別（數字、字串、布林、字串陣列、帶型別的物件）。
 // 目標：能直接通過型別檢查與基本值檢查。
 
@@ -14,7 +14,7 @@ export const cart /* TODO: 陣列包物件的型別定義 >cart → 陣列，每
 
 
 
-// --- 題目二：Enum（定義 & 反向映射） ---
+// --------------------------- 題目二：Enum（定義 & 反向映射--------------------------- 
 // 說明：請定義 PlantCategory Enum，並示範反向映射。
 // 目標：理解 Enum 定義與反向映射的寫法。 Enum 是「列舉型別」，用來建立一組固定不會變的分類名稱，只要打錯字或非定義分類的就會報錯
 
@@ -29,9 +29,7 @@ export const catKeyName: string = PlantCategory[/* TODO: 取得 LargePlant 的�
 
 
 
-
-
-// --- 題目三：type（& 組合） ---
+// ------------------------------ 題目三：type（& 組合）------------------------------ 
 // 說明：請用 type 定義 BasicPlant 與 StockInfo，再用 & 組合為 OnShelfPlant，建立範例變數。
 // 目標：理解 type 宣告與交叉型別的寫法。
 
@@ -56,10 +54,7 @@ export const snakePlant /* TODO: OnShelfPlant */ :OnShelfPlant = {
 
 
 
-
-
-
-// --- 題目四：interface（extends 組合） ---
+// ------------------------------  題目四：interface（extends 組合） ------------------------------
 // 說明：定義 Price 與 Shippable，PlantItem 需 extends 兩者並包含 id/name。
 // 目標：理解介面擴充多重介面的寫法。
 
@@ -103,9 +98,7 @@ export const fiddleLeafFig /* TODO: PlantItem */ :PlantItem = {
 
 
 
-
-
-// --- 題目五：函式定義（以 type 標註參數與回傳） ---
+// ------------------------------  題目五：函式定義（以 type 標註參數與回傳） ------------------------------
 // 說明：定義 CalcTotalFn，計算 items 小計，若有 coupon 則折抵（percent/cash）。
 // 目標：以 type 定義函式型別並實作。
 
@@ -130,27 +123,31 @@ export const calcTotal /* TODO: CalcTotalFn */ :CalcTotalFn = (items, coupon) =>
 
 
 
-
-
-// --- 題目六：Generics + API 應用（使用 axios)  ---
+// ------------------------------  題目六：Generics + API 應用（使用 axios)  ------------------------------
 // 說明：import axios 與 AxiosResponse，定義 PlantDTO，實作 fetchPlants。
 // API: https://fakestoreapi.com/products
 // 目標：理解泛型定義與應用。
-import axios from 'axios'; /* TODO */
+
+/*axios 是預設匯出（default export）——代表整個模組的主要功能。
+AxiosResponse 是具名匯出（named export）——代表模組裡提供的 TypeScript 型別。
+因此需要一起 import：前者不用大括號，後者要用大括號*/
+import axios,{AxiosResponse} from 'axios'; /* TODO */
+
 export type PlantDTO = { 
   id: number; 
   title: string; 
   price: number; 
   category: string; 
 };
+// fetchPlants 回傳 Promise<AxiosResponse<PlantDTO[]>>
+export const fetchPlants = async () /* TODO */ :Promise < AxiosResponse<PlantDTO[]> > => {
+  return axios.get<PlantDTO[]> ('https://fakestoreapi.com/products');
+}//這個 API 會回傳 PlantDTO 陣列，請用 PlantDTO[] 當作 axios.get 的泛型
 
-export const fetchPlants = async () /* TODO */ => {
-  return axios.get('https://fakestoreapi.com/products');
-}
 
 
 
-// --- 題目七：Required、Partial ---
+// ------------------------------  題目七：Required、Partial ------------------------------
 // 說明：updatePlant(input) 接受部分更新，實際回傳需是 Required<PlantBase>。
 // 目標：掌握 Partial/Required 的互補與回傳保證。
 export type PlantBase = { id: number; name: string; price: number; description?: string };
@@ -167,7 +164,8 @@ export function updatePlant(input: /* TODO */ any): /* TODO */ any {
 }
 
 
-// --- 題目八：Record ---
+
+// ------------------------------  題目八：Record ------------------------------
 // 說明：用 Record 表示庫存表。
 // 目標：以字串鍵對應到嚴格結構。
 export type Inventory = /* TODO */ any;
@@ -176,7 +174,9 @@ export const inventory /* TODO */ = {
   "PLANT-2001": 8,
 };
 
-// --- 題目九：Pick、Omit ---
+
+
+// ------------------------------  題目九：Pick、Omit ------------------------------
 // 說明：type PlantItem 由第四題定義，請用 Pick/Omit 建立兩個新型別。
 // 目標：理解 Pick/Omit 的用法與差異。
 // 需求：
@@ -189,7 +189,10 @@ export const cartPlant /* TODO */ = { id: 101, name: "琴葉榕", price: 2500 };
 export const publicPlant /* TODO */ = { id: 101, name: "琴葉榕", price: 2500, currency: "TWD" };
 
 
-// --- 題目十：綜合練習 ---
+
+
+
+// ------------------------------  題目十：綜合練習 ------------------------------
 // 說明：這是一個後台新增商品的功能，請將以下需求用 TypeScript 實作。
 /* 1️⃣ 定義 type Product
     產品資料結構如下：
