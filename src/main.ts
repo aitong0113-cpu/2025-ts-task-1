@@ -35,11 +35,18 @@ export const catKeyName: string = PlantCategory[/* TODO: 取得 LargePlant 的�
 // 說明：請用 type 定義 BasicPlant 與 StockInfo，再用 & 組合為 OnShelfPlant，建立範例變數。
 // 目標：理解 type 宣告與交叉型別的寫法。
 
-export type BasicPlant = /* TODO: { id: 型別; name: 型別; price: 型別 } */ any;
-export type StockInfo = /* TODO: { sku: 型別; quantity: 型別 } */ any;
-export type OnShelfPlant = /* TODO: BasicPlant, StockInfo 組合 */ any;
+export type BasicPlant = /* TODO: { id: 型別; name: 型別; price: 型別 } */ {
+  id: number;
+  name: string;
+  price: number;
+};
+export type StockInfo = /* TODO: { sku: 型別; quantity: 型別 } */ {
+  sku:string;
+  quantity:number;
+};
+export type OnShelfPlant = /* TODO: BasicPlant, StockInfo 組合 */ BasicPlant & StockInfo;//不需要寫 {}，因為 type 已經定義好了
 
-export const snakePlant /* TODO: OnShelfPlant */ = {
+export const snakePlant /* TODO: OnShelfPlant */ :OnShelfPlant = {
   id: 2,
   name: "虎尾蘭",
   price: 480,
@@ -48,14 +55,42 @@ export const snakePlant /* TODO: OnShelfPlant */ = {
 };
 
 
+
+
+
+
 // --- 題目四：interface（extends 組合） ---
 // 說明：定義 Price 與 Shippable，PlantItem 需 extends 兩者並包含 id/name。
 // 目標：理解介面擴充多重介面的寫法。
-export interface Price { /* TODO: price: 型別; currency:"TWD"|"USD" */ }
-export interface Shippable { /* TODO: weightKg: 型別; shipFrom: 型別 */ }
-// export interface PlantItem 組合 Price, Shippable 並包含 id/name
 
-export const fiddleLeafFig /* TODO: PlantItem */ = {
+//// 定義價格資訊介面 Price
+// → 商品一定會有 price 與 currency（限定只能是 "TWD" 或 "USD"）
+export interface Price { /* TODO: price: 型別; currency:"TWD"|"USD" */   
+  price: number;
+  currency: "TWD" | "USD";  // 只能是 TWD 或 USD 
+} //	•	interface 是「獨立結構定義」→ 標準寫法結尾不加分號
+
+// 定義運送資訊介面 Shippable
+// → 商品一定要知道重量與出貨地點
+export interface Shippable { /* TODO: weightKg: 型別; shipFrom: 型別 */ 
+  weightKg: number;
+  shipFrom: string;
+}
+
+// export interface PlantItem 組合 Price, Shippable 並包含 id/name
+// PlantItem 需要：
+// 1. 繼承 Price（取得 price, currency）
+// 2. 繼承 Shippable（取得 weightKg, shipFrom）
+// 3. 自己再加上 id 與 name 欄位
+// → 這就是「多重繼承（extends Price, Shippable）」
+export interface PlantItem extends Price, Shippable {
+  id: number;
+  name: string;
+}
+
+// fiddleLeafFig 套用 PlantItem 型別
+// → 必須有 id/name + Price 裡的 price/currency + Shippable 裡的 weightKg/shipFrom
+export const fiddleLeafFig /* TODO: PlantItem */ :PlantItem = {
   id: 101,
   name: "琴葉榕",
   price: 2500,
@@ -65,19 +100,36 @@ export const fiddleLeafFig /* TODO: PlantItem */ = {
 };
 
 
+
+
+
+
+
 // --- 題目五：函式定義（以 type 標註參數與回傳） ---
 // 說明：定義 CalcTotalFn，計算 items 小計，若有 coupon 則折抵（percent/cash）。
 // 目標：以 type 定義函式型別並實作。
-export type CartItem = { price: number; qty: number };
-export type Coupon = { type: "percent" | "cash"; amount: number };
-export type CalcTotalFn = /* TODO: (參數型別) => 型別 */ any;
 
-export const calcTotal /* TODO: CalcTotalFn */ = (items, coupon) => {
-  const subtotal = items.reduce((sum, it) => sum + it.price * it.qty, 0);
-  if (!coupon) return subtotal; 
-  if (coupon.type === "percent") return Math.max(0, Math.round(subtotal * (1 - coupon.amount / 100)));
+//(items 是 CartItem[],
+export type CartItem = { price: number; qty: number };
+// coupon 可以有兩種類型 percent/cash 
+export type Coupon = { type: "percent" | "cash"; amount: number };
+// (items 是 CartItem[], coupon 可以有也可以沒有) → 最後算出一個數字
+export type CalcTotalFn = /* TODO: (參數型別) => 型別 */ (items: CartItem[], coupon?: Coupon) => number;
+// calcTotal 使用 CalcTotalFn 這個型別
+export const calcTotal /* TODO: CalcTotalFn */ :CalcTotalFn = (items, coupon) => {
+  //.reduce使items一定是陣列，且陣列裡裝的是有 price 和 qty 的物件（上面 CartItem就如此定義）
+  const subtotal = items.reduce((sum, it) => sum + it.price * it.qty, 0); 
+  if (!coupon) return subtotal;//coupon 本身可以不存在
+  // 百分比折扣
+  if (coupon.type === "percent") 
+    return Math.max(0, Math.round(subtotal * (1 - coupon.amount / 100)));
+  // 現金折扣
   return Math.max(0, subtotal - coupon.amount);
 };
+
+
+
+
 
 
 // --- 題目六：Generics + API 應用（使用 axios)  ---
