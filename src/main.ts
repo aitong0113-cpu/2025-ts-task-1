@@ -19,7 +19,7 @@ export const cart /* TODO: 陣列包物件的型別定義 >cart → 陣列，每
 // 目標：理解 Enum 定義與反向映射的寫法。 Enum 是「列舉型別」，用來建立一組固定不會變的分類名稱，只要打錯字或非定義分類的就會報錯
 
 export enum PlantCategory { //定義一個叫做 PlantCategory 植物分類 的 enum
-  LargPlant, //Enum 會自動從 0 開始編號 >>0
+  LargePlant, //Enum 會自動從 0 開始編號 >>0
   MediumPlant, //1
   SmallPlant, //2
 }
