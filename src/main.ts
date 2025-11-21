@@ -129,7 +129,7 @@ export const calcTotal /* TODO: CalcTotalFn */ :CalcTotalFn = (items, coupon) =>
 /*axios 是預設匯出（default export）——代表整個模組的主要功能。
 AxiosResponse 是具名匯出（named export）——代表模組裡提供的 TypeScript 型別。
 因此需要一起 import：前者不用大括號，後者要用大括號*/
-import axios,{AxiosResponse} from 'axios'; /* TODO */
+import axios,{type AxiosResponse} from 'axios'; /* TODO */
 
 export type PlantDTO = { 
   id: number; 
@@ -297,9 +297,14 @@ export function submitProduct(
     // 題目要求回傳："新增商品成功：${product.title}"
     return `新增商品成功：${product.title}`;
   }
+    // 型別縮小：確保 product 一定是 UpdateProduct
+  if ("id" in product) {
+    return `更新商品成功：${product.id}`;
+  }
 
   // 否則型別一定是 "update"
   // TS 在這裡會自動把 product 判定成 UpdateProduct（因為 id 在這型別是必填）
   // 題目要求回傳："更新商品成功：${product.id}"
-  return `更新商品成功：${product.id}`;
+   // 理論上永遠不會到這，但加一下讓 TS 滿意
+  return "未知操作";
 }
