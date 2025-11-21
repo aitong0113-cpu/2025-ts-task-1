@@ -96,8 +96,6 @@ export const fiddleLeafFig /* TODO: PlantItem */ :PlantItem = {
 
 
 
-
-
 // ------------------------------  題目五：函式定義（以 type 標註參數與回傳） ------------------------------
 // 說明：定義 CalcTotalFn，計算 items 小計，若有 coupon 則折抵（percent/cash）。
 // 目標：以 type 定義函式型別並實作。
@@ -150,11 +148,30 @@ export const fetchPlants = async () /* TODO */ :Promise < AxiosResponse<PlantDTO
 // ------------------------------  題目七：Required、Partial ------------------------------
 // 說明：updatePlant(input) 接受部分更新，實際回傳需是 Required<PlantBase>。
 // 目標：掌握 Partial/Required 的互補與回傳保證。
-export type PlantBase = { id: number; name: string; price: number; description?: string };
 
-export function updatePlant(input: /* TODO */ any): /* TODO */ any {
-  const existing: /* TODO */ any = { id: 1, name: "虎尾蘭", price: 480, description: "耐陰、淨化空氣" };
+//基礎型別 (description可選)
+export type PlantBase = { 
+  id: number; 
+  name: string; 
+  price: number; 
+  description?: string 
+};
+
+// input：部分更新 → 用 Partial<PlantBase> ：把 PlantBase 每一個欄位都變可選
+// 回傳：完整回傳 → Required<PlantBase>：把 T 裡「所有欄位」都變成必填的
+export function updatePlant(input : Partial<PlantBase>/* TODO */ 
+                           ): Required<PlantBase> { /* TODO */ 
+  // existing：資料庫裡欄位必須全部存在 → Required<PlantBase>
+  const existing /* TODO */ : Required<PlantBase>  = { 
+    id: 1, 
+    name: "虎尾蘭", 
+    price: 480, 
+    description: "耐陰、淨化空氣" 
+  };
+  
+  // 合併舊資料 + 更新資料
   const merged = { ...existing, ...input };
+  // 回傳一定要是完整版本
   return {
     id: merged.id,
     name: merged.name,
@@ -166,10 +183,12 @@ export function updatePlant(input: /* TODO */ any): /* TODO */ any {
 
 
 // ------------------------------  題目八：Record ------------------------------
-// 說明：用 Record 表示庫存表。
+// 說明：用 Record 表示庫存表。是一種「用來做 表格/對照表/字典 的型別工具。用字串當 key，用數字當值 → 就很適合拿來表示庫存。
 // 目標：以字串鍵對應到嚴格結構。
-export type Inventory = /* TODO */ any;
-export const inventory /* TODO */ = {
+
+// key 是字串、value 是數字（庫存量）
+export type Inventory = /* TODO */ Record<string, number>;
+export const inventory /* TODO */ :Inventory  = {
   "PLANT-1001": 42,
   "PLANT-2001": 8,
 };
@@ -182,11 +201,16 @@ export const inventory /* TODO */ = {
 // 需求：
 // 1) CartPlant：只需 id/name/price
 // 2) PublicPlant：移除重量與出貨地
-export type CartPlant = /* TODO */ any;
-export type PublicPlant = /* TODO */ any;
 
-export const cartPlant /* TODO */ = { id: 101, name: "琴葉榕", price: 2500 };
-export const publicPlant /* TODO */ = { id: 101, name: "琴葉榕", price: 2500, currency: "TWD" };
+// 只挑出 id / name / price
+export type CartPlant = /* TODO */ Pick<PlantItem, "id" | "name" | "price"> ;
+// 移除 weightKg / shipFrom，保留其他欄位
+export type PublicPlant = /* TODO */ Omit<PlantItem, "weightKg" | "shipFrom">;
+
+// 範例變數
+//宣告變數 cartPlant，:CartPlant變數的結構必須符合CartPlant型別，TS會做型別檢查
+export const cartPlant /* TODO */ :CartPlant  = { id: 101, name: "琴葉榕", price: 2500 };
+export const publicPlant /* TODO */ :PublicPlant = { id: 101, name: "琴葉榕", price: 2500, currency: "TWD" };
 
 
 
@@ -208,15 +232,41 @@ export const publicPlant /* TODO */ = { id: 101, name: "琴葉榕", price: 2500,
     - imagesUrl: 字串陣列（非必要）
 */
 
+export type Product = {
+  id: string;
+  title: string;
+  category: string;
+  description: string;
+  origin_price: number;
+  price: number;
+  is_enabled: boolean;
+  unit: string;
+  imageUrl: string;
+  imagesUrl?: string[]; // ?代表非必要
+};
+
 /*
 2️⃣ 定義 type CreateProduct
-由 Product 衍生，但不包含 id（使用 Omit）
+由 Product 衍生，但不包含 id（使用 Omit 刪欄位）
 */
+// 建立商品 → 不需要 id
+export type CreateProduct = Omit<Product, "id">;
+
 
 /*
 3️⃣ 定義 type UpdateProduct
-由 Product 衍生，id, title 必須有，其餘皆可選（使用 Partial 與 Omit）
+由 Product 衍生，id, title 必須有，其餘皆可選（使用 Partial必填 與 Omit刪除 ）
 */
+// 更新商品 → id / title 必填，其餘可選
+// 步驟：
+// 1. Omit<Product, "id" | "title"> → 把它們先移除
+// 2. Partial<...> → 讓剩下的全部變可選
+// 3. 再把 id, title 加回來（必填）
+export type UpdateProduct = {
+  id: string;
+  title: string;
+} & Partial<Omit<Product, "id" | "title">>;
+
 
 /*
 4️⃣ 實作函式 submitProduct(type, product)
@@ -228,3 +278,28 @@ export const publicPlant /* TODO */ = { id: 101, name: "琴葉榕", price: 2500,
 create → "新增商品成功：${product.title}"
 update → "更新商品成功：${product.id}"
 */
+// submitProduct 這個函式負責：
+// 根據 type（create or update），處理不同型別的商品資料
+// 並回傳不同的成功訊息
+export function submitProduct(
+  // type 參數：只能是 "create" 或 "update"
+  type: "create" | "update",
+
+  // product 參數：可能是 CreateProduct（新增）或 UpdateProduct（更新）
+  // → 使用 Union Type 讓 TS 在執行時透過 type 判斷實際型別
+  product: CreateProduct | UpdateProduct
+): string { // 整個函式的回傳型別：string（根據題目要求）
+
+  // 判斷是否為「新增商品」
+  // 若 type === "create"，TS 會自動把 product「窄化」成 CreateProduct 型別
+  if (type === "create") {
+    // CreateProduct 不包含 id，但一定包含 title
+    // 題目要求回傳："新增商品成功：${product.title}"
+    return `新增商品成功：${product.title}`;
+  }
+
+  // 否則型別一定是 "update"
+  // TS 在這裡會自動把 product 判定成 UpdateProduct（因為 id 在這型別是必填）
+  // 題目要求回傳："更新商品成功：${product.id}"
+  return `更新商品成功：${product.id}`;
+}
