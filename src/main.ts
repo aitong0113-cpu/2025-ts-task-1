@@ -215,23 +215,9 @@ export const publicPlant /* TODO */ :PublicPlant = { id: 101, name: "琴葉榕",
 
 
 
-
 // ------------------------------  題目十：綜合練習 ------------------------------
-// 說明：這是一個後台新增商品的功能，請將以下需求用 TypeScript 實作。
-/* 1️⃣ 定義 type Product
-    產品資料結構如下：
-    - id: 字串
-    - title: 字串
-    - category: 字串
-    - description: 字串
-    - origin_price: 數字
-    - price: 數字
-    - is_enabled: 布林
-    - unit: 字串 
-    - imageUrl: 字串
-    - imagesUrl: 字串陣列（非必要）
-*/
 
+// 1️⃣ 定義 Product
 export type Product = {
   id: string;
   title: string;
@@ -242,69 +228,32 @@ export type Product = {
   is_enabled: boolean;
   unit: string;
   imageUrl: string;
-  imagesUrl?: string[]; // ?代表非必要
+  imagesUrl?: string[]; // 非必要欄位
 };
 
-/*
-2️⃣ 定義 type CreateProduct
-由 Product 衍生，但不包含 id（使用 Omit 刪欄位）
-*/
-// 建立商品 → 不需要 id
+// 2️⃣ CreateProduct：建立商品不需要 id
 export type CreateProduct = Omit<Product, "id">;
 
-
-/*
-3️⃣ 定義 type UpdateProduct
-由 Product 衍生，id, title 必須有，其餘皆可選（使用 Partial必填 與 Omit刪除 ）
-*/
-// 更新商品 → id / title 必填，其餘可選
-// 步驟：
-// 1. Omit<Product, "id" | "title"> → 把它們先移除
-// 2. Partial<...> → 讓剩下的全部變可選
-// 3. 再把 id, title 加回來（必填）
+// 3️⃣ UpdateProduct：id、title 必填，其餘可選
 export type UpdateProduct = {
   id: string;
   title: string;
 } & Partial<Omit<Product, "id" | "title">>;
 
-
-/*
-4️⃣ 實作函式 submitProduct(type, product)
-參數說明：
-- type 僅能是 "create" 或 "update"
-- 若 type === "create"，參數型別應為 CreateProduct
-- 若 type === "update"，參數型別應為 UpdateProduct
-函式回傳字串：
-create → "新增商品成功：${product.title}"
-update → "更新商品成功：${product.id}"
-*/
-// submitProduct 這個函式負責：
-// 根據 type（create or update），處理不同型別的商品資料
-// 並回傳不同的成功訊息
+// 4️⃣ submitProduct：根據 type 回傳不同訊息
 export function submitProduct(
-  // type 參數：只能是 "create" 或 "update"
   type: "create" | "update",
-
-  // product 參數：可能是 CreateProduct（新增）或 UpdateProduct（更新）
-  // → 使用 Union Type 讓 TS 在執行時透過 type 判斷實際型別
   product: CreateProduct | UpdateProduct
-): string { // 整個函式的回傳型別：string（根據題目要求）
+): string {
 
-  // 判斷是否為「新增商品」
-  // 若 type === "create"，TS 會自動把 product「窄化」成 CreateProduct 型別
+  // 若 type === "create"，TS 會自動推論 product 是 CreateProduct
   if (type === "create") {
-    // CreateProduct 不包含 id，但一定包含 title
-    // 題目要求回傳："新增商品成功：${product.title}"
+    // CreateProduct 一定有 title（因為建立商品不需要 id，但 title 必填）
     return `新增商品成功：${product.title}`;
   }
-    // 型別縮小：確保 product 一定是 UpdateProduct
-  if ("id" in product) {
-    return `更新商品成功：${product.id}`;
-  }
 
-  // 否則型別一定是 "update"
-  // TS 在這裡會自動把 product 判定成 UpdateProduct（因為 id 在這型別是必填）
-  // 題目要求回傳："更新商品成功：${product.id}"
-   // 理論上永遠不會到這，但加一下讓 TS 滿意
-  return "未知操作";
+  // 若 type !== create → 此時只能是 update
+  // 型別縮小（narrowing）：這裡 TS 會推論 product 是 UpdateProduct
+  // UpdateProduct 的 id 必填，因此一定能用
+  return `更新商品成功：${product.id}`;
 }
